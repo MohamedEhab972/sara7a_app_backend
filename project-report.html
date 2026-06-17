@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تقرير مراجعة المشروع</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      direction: rtl;
+      text-align: right;
+      line-height: 1.8;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%);
+      padding: 48px 60px;
+      border-bottom: 3px solid #2563eb;
+    }
+
+    .header h1 {
+      font-size: 2.2rem;
+      color: #60a5fa;
+      margin-bottom: 8px;
+    }
+
+    .header .subtitle {
+      color: #94a3b8;
+      font-size: 1rem;
+    }
+
+    .header .meta {
+      margin-top: 20px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    .meta-item span {
+      color: #60a5fa;
+      font-weight: bold;
+    }
+
+    .verdict-banner {
+      background: #052e16;
+      border: 2px solid #16a34a;
+      border-radius: 12px;
+      margin: 32px 60px;
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .verdict-banner.warn {
+      background: #1c1917;
+      border-color: #ca8a04;
+    }
+
+    .verdict-icon {
+      font-size: 2.5rem;
+      flex-shrink: 0;
+    }
+
+    .verdict-text h2 {
+      font-size: 1.4rem;
+      color: #4ade80;
+      margin-bottom: 4px;
+    }
+
+    .verdict-text p {
+      color: #86efac;
+      font-size: 0.95rem;
+    }
+
+    .container {
+      padding: 0 60px 60px;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      color: #60a5fa;
+      border-right: 4px solid #2563eb;
+      padding-right: 14px;
+      margin: 40px 0 20px;
+    }
+
+    /* Stats row */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-card .number {
+      font-size: 2.2rem;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .stat-card .label {
+      font-size: 0.8rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-card.green .number { color: #4ade80; }
+    .stat-card.yellow .number { color: #fbbf24; }
+    .stat-card.red .number { color: #f87171; }
+    .stat-card.blue .number { color: #60a5fa; }
+
+    /* Issue cards */
+    .issue-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .issue-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 4px;
+      height: 100%;
+    }
+
+    .issue-card.minor::before { background: #fbbf24; }
+    .issue-card.info::before  { background: #60a5fa; }
+    .issue-card.good::before  { background: #4ade80; }
+    .issue-card.wrong::before { background: #f87171; }
+
+    .issue-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 12px;
+    }
+
+    .issue-title {
+      font-size: 1.05rem;
+      font-weight: bold;
+      color: #e2e8f0;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      font-weight: bold;
+      padding: 3px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .badge.minor  { background: #451a03; color: #fbbf24; border: 1px solid #92400e; }
+    .badge.info   { background: #1e3a5f; color: #60a5fa; border: 1px solid #1d4ed8; }
+    .badge.good   { background: #052e16; color: #4ade80; border: 1px solid #166534; }
+    .badge.wrong  { background: #2d0a0a; color: #f87171; border: 1px solid #991b1b; }
+
+    .issue-body {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+    }
+
+    .file-ref {
+      display: inline-block;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: #7dd3fc;
+      margin-bottom: 12px;
+      direction: ltr;
+      text-align: left;
+    }
+
+    .code-block {
+      background: #0f172a;
+      border: 1px solid #1e3a5f;
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      direction: ltr;
+      text-align: left;
+      overflow-x: auto;
+      margin-top: 10px;
+      line-height: 1.6;
+    }
+
+    .code-block .bad  { color: #f87171; }
+    .code-block .good { color: #4ade80; }
+    .code-block .comment { color: #4b5563; }
+    .code-block .keyword { color: #c084fc; }
+    .code-block .string { color: #fbbf24; }
+    .code-block .normal { color: #94a3b8; }
+
+    /* Architecture table */
+    .arch-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+
+    .arch-table th {
+      background: #0f172a;
+      color: #64748b;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 10px 16px;
+      text-align: right;
+    }
+
+    .arch-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #1e293b;
+      font-size: 0.9rem;
+      color: #94a3b8;
+    }
+
+    .arch-table tr:last-child td { border-bottom: none; }
+    .arch-table tr:hover td { background: #1e293b; }
+
+    .arch-table .path {
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      color: #7dd3fc;
+      direction: ltr;
+      text-align: left;
+    }
+
+    .status-ok   { color: #4ade80; font-weight: bold; }
+    .status-warn { color: #fbbf24; font-weight: bold; }
+    .status-err  { color: #f87171; font-weight: bold; }
+
+    /* Correction section */
+    .correction-block {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 16px;
+    }
+
+    .correction-block h3 {
+      font-size: 1rem;
+      color: #e2e8f0;
+      margin-bottom: 8px;
+    }
+
+    .correction-block p {
+      color: #94a3b8;
+      font-size: 0.88rem;
+      margin-bottom: 14px;
+    }
+
+    .diff-label {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .diff-bad  { border-right: 3px solid #f87171; }
+    .diff-good { border-right: 3px solid #4ade80; }
+
+    /* Flow diagram */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 16px 0;
+      flex-wrap: wrap;
+      direction: ltr;
+    }
+
+    .flow-step {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      white-space: nowrap;
+    }
+
+    .flow-arrow {
+      color: #334155;
+      padding: 0 8px;
+      font-size: 1.1rem;
+    }
+
+    .flow-step.highlight { border-color: #2563eb; color: #60a5fa; }
+    .flow-step.success   { border-color: #166534; color: #4ade80; }
+    .flow-step.error-step { border-color: #991b1b; color: #f87171; }
+
+    /* Footer */
+    .footer {
+      background: #0f172a;
+      border-top: 1px solid #1e293b;
+      padding: 24px 60px;
+      color: #475569;
+      font-size: 0.82rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer span { color: #64748b; }
+
+    @media (max-width: 768px) {
+      .header, .container, .footer { padding-left: 20px; padding-right: 20px; }
+      .verdict-banner { margin-left: 20px; margin-right: 20px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ======= HEADER ======= -->
+<div class="header">
+  <h1>تقرير مراجعة المشروع</h1>
+  <p class="subtitle">Route Backend Exam — تحليل شامل للكود والبنية</p>
+  <div class="meta">
+    <div class="meta-item">التاريخ: <span>7 يونيو 2026</span></div>
+    <div class="meta-item">المشروع: <span>assignment10</span></div>
+    <div class="meta-item">Framework: <span>Express.js v5</span></div>
+    <div class="meta-item">Database: <span>MongoDB / Mongoose</span></div>
+    <div class="meta-item">Auth: <span>JWT</span></div>
+  </div>
+</div>
+
+<!-- ======= VERDICT ======= -->
+<div class="verdict-banner">
+  <div class="verdict-icon">✅</div>
+  <div class="verdict-text">
+    <h2>المشروع يشتغل بدون مشاكل فاتالة</h2>
+    <p>تم فحص جميع الملفات — لا توجد أخطاء تمنع تشغيل التطبيق. المشاكل الموجودة بسيطة ولا تؤثر على الوظائف الأساسية.</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ======= STATS ======= -->
+  <div class="stats-grid">
+    <div class="stat-card blue">
+      <div class="number">16</div>
+      <div class="label">ملف تم فحصه</div>
+    </div>
+    <div class="stat-card green">
+      <div class="number">0</div>
+      <div class="label">أخطاء فاتالة</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="number">2</div>
+      <div class="label">مشاكل بسيطة</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="number">2</div>
+      <div class="label">ملفات فاضية</div>
+    </div>
+  </div>
+
+  <!-- ======= CORRECTION OF WRONG CLAIM ======= -->
+  <h2 class="section-title">تصحيح تحليل خاطئ شائع</h2>
+
+  <div class="issue-card wrong">
+    <div class="issue-header">
+      <div class="issue-title">ادعاء: "missing return قبل exceptions = bug فاتالة"</div>
+      <span class="badge wrong">غلط تماماً</span>
+    </div>
+    <div class="issue-body">
+      كثير من المراجعات ادّعت أن الكود التالي خطأ لأنه لا يوجد <code style="color:#fbbf24">return</code> قبل الـ exception functions.
+      هذا الادعاء <strong>غلط بالكامل</strong>، لأن الـ functions دي جوّاها <code style="color:#fbbf24">throw new Error(...)</code>،
+      والـ throw يوقف التنفيذ تلقائياً بغض النظر عن وجود return أو لا.
+    </div>
+    <span class="file-ref">src/utils/ApiError.js : line 6</span>
+    <div class="code-block">
+<span class="comment">// ApiError.js — الـ errorResponce دايماً بتعمل throw</span>
+<span class="normal">export const errorResponce = (...) => {</span>
+<span class="good">  throw new Error(message, { cause: { status, extra } });  // ← يوقف التنفيذ هنا</span>
+<span class="normal">};</span>
+
+<span class="comment">// auth.service.js — الكود ده صح تماماً</span>
+<span class="normal">if (!user) {</span>
+<span class="normal">  NotFoundException({ message: "User not found" });  // بيعمل throw → يوقف</span>
+<span class="normal">}</span>
+<span class="comment">// السطر ده لن يُنفَّذ أبداً لو user = null</span>
+<span class="normal">const isMatch = await comparePassword(password, user.password);</span>
+    </div>
+
+    <p style="color:#94a3b8; font-size:0.85rem; margin-top:14px;">
+      <strong style="color:#4ade80">كيف يشتغل الـ flow بشكل صح:</strong>
+    </p>
+    <div class="flow">
+      <div class="flow-step">NotFoundException()</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step highlight">throw new Error()</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step error-step">async fn rejects</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step highlight">.catch(next)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step success">globalErrorHandler → 404</div>
+    </div>
+  </div>
+
+  <!-- ======= REAL ISSUES ======= -->
+  <h2 class="section-title">المشاكل الحقيقية</h2>
+
+  <!-- Issue 1 -->
+  <div class="issue-card minor">
+    <div class="issue-header">
+      <div class="issue-title">JWT errors بترجع 500 بدل 401</div>
+      <span class="badge minor">تحذير بسيط</span>
+    </div>
+    <div class="issue-body">
+      لما حد يبعت token منتهي أو غلط، <code style="color:#fbbf24">jwt.verify</code> بترمي <code style="color:#fbbf24">JsonWebTokenError</code>
+      وده error مش عنده <code style="color:#fbbf24">cause.status</code>، فـ <code style="color:#fbbf24">globalErrorHandler</code>
+      بيرجع <strong>500</strong> بدل <strong>401</strong>.
+    </div>
+    <span class="file-ref">src/middlewares/auth.middleware.js : line 11</span>
+    <div class="code-block">
+<span class="comment">// المشكلة في globalErrorHandler</span>
+<span class="normal">res.status(</span><span class="bad">err.cause?.status</span> <span class="normal">|| 500)  </span><span class="comment">// jwt errors ملهاش cause.status → هيبقى 500</span>
+
+<span class="comment">// الحل: catch الـ jwt errors بشكل منفصل</span>
+<span class="keyword">import</span> <span class="normal">{ JsonWebTokenError, TokenExpiredError } from </span><span class="string">"jsonwebtoken"</span><span class="normal">;</span>
+
+<span class="normal">} catch (err) {</span>
+<span class="good">  if (err instanceof JsonWebTokenError) {</span>
+<span class="good">    return next(UnauthorizedException({ message: "Invalid token" }));</span>
+<span class="good">  }</span>
+<span class="normal">  next(err);</span>
+<span class="normal">}</span>
+    </div>
+  </div>
+
+  <!-- Issue 2 -->
+  <div class="issue-card minor">
+    <div class="issue-header">
+      <div class="issue-title">إعداد الـ timestamps في Booking Model غلط</div>
+      <span class="badge minor">تحذير بسيط</span>
+    </div>
+    <div class="issue-body">
+      الكود الحالي بيحاول يشيل <code style="color:#fbbf24">updatedAt</code> بس الطريقة غلط.
+      الـ <code style="color:#fbbf24">updatedAt: false</code> هنا مش جوه الـ timestamps object،
+      فـ Mongoose بيتجاهله ويضيف كلا الـ timestamps.
+    </div>
+    <span class="file-ref">src/database/models/Booking.model.js : line 24</span>
+    <div class="code-block">
+<span class="comment">// الكود الحالي — updatedAt:false هنا مش بيعمل حاجة</span>
+<span class="bad">{ timestamps: true, updatedAt: false }</span>
+
+<span class="comment">// الصح — لازم يبقى جوه الـ timestamps object</span>
+<span class="good">{ timestamps: { createdAt: true, updatedAt: false } }</span>
+    </div>
+  </div>
+
+  <!-- Issue 3 -->
+  <div class="issue-card info">
+    <div class="issue-header">
+      <div class="issue-title">ملفان فاضيان وغير مستخدمَين</div>
+      <span class="badge info">معلومة</span>
+    </div>
+    <div class="issue-body">
+      ملفان موجودان في المشروع بدون محتوى ومش مستوردَين في أي مكان. مش بيأثروا على التشغيل لكن يستحسن تشيلهم أو تكملهم.
+    </div>
+    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:8px;">
+      <span class="file-ref">src/middlewares/error.middleware.js — فاضي</span>
+      <span class="file-ref">src/utils/response.js — فاضي</span>
+    </div>
+  </div>
+
+  <!-- ======= ARCHITECTURE TABLE ======= -->
+  <h2 class="section-title">مراجعة البنية الكاملة للمشروع</h2>
+
+  <table class="arch-table">
+    <thead>
+      <tr>
+        <th>الملف</th>
+        <th>الغرض</th>
+        <th>الحالة</th>
+        <th>ملاحظة</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="path">src/main.js</td>
+        <td>نقطة الدخول</td>
+        <td class="status-ok">✅ صح</td>
+        <td>بيستدعي bootstrap()</td>
+      </tr>
+      <tr>
+        <td class="path">src/app.controller.js</td>
+        <td>إعداد Express</td>
+        <td class="status-ok">✅ صح</td>
+        <td>globalErrorHandler مسجّل صح</td>
+      </tr>
+      <tr>
+        <td class="path">config/env.service.js</td>
+        <td>متغيرات البيئة</td>
+        <td class="status-ok">✅ صح</td>
+        <td>PORT, MONGO_URI, JWT_SECRET, JWT_EXPIRES_IN</td>
+      </tr>
+      <tr>
+        <td class="path">config/.env</td>
+        <td>قيم البيئة</td>
+        <td class="status-ok">✅ صح</td>
+        <td>كل المتغيرات موجودة</td>
+      </tr>
+      <tr>
+        <td class="path">src/database/connection.js</td>
+        <td>اتصال MongoDB</td>
+        <td class="status-ok">✅ صح</td>
+        <td>يلزم MongoDB شغّالة على :27017</td>
+      </tr>
+      <tr>
+        <td class="path">src/database/models/User.model.js</td>
+        <td>موديل المستخدم</td>
+        <td class="status-ok">✅ صح</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td class="path">src/database/models/Booking.model.js</td>
+        <td>موديل الحجز</td>
+        <td class="status-warn">⚠️ تحذير</td>
+        <td>timestamps syntax غلط</td>
+      </tr>
+      <tr>
+        <td class="path">src/utils/ApiError.js</td>
+        <td>Exception helpers + Error handler</td>
+        <td class="status-ok">✅ صح</td>
+        <td>throw + globalErrorHandler شغالين</td>
+      </tr>
+      <tr>
+        <td class="path">src/utils/asyncHandler.js</td>
+        <td>Async wrapper</td>
+        <td class="status-ok">✅ صح</td>
+        <td>Promise.resolve + .catch(next)</td>
+      </tr>
+      <tr>
+        <td class="path">src/utils/Hash.js</td>
+        <td>bcrypt hash/compare</td>
+        <td class="status-ok">✅ صح</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td class="path">src/utils/token.js</td>
+        <td>JWT generate</td>
+        <td class="status-ok">✅ صح</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td class="path">src/middlewares/auth.middleware.js</td>
+        <td>JWT verify middleware</td>
+        <td class="status-warn">⚠️ تحذير</td>
+        <td>JWT errors بترجع 500 بدل 401</td>
+      </tr>
+      <tr>
+        <td class="path">src/middlewares/error.middleware.js</td>
+        <td>—</td>
+        <td class="status-warn">⚠️ فاضي</td>
+        <td>ملف فاضي وغير مستخدم</td>
+      </tr>
+      <tr>
+        <td class="path">src/modules/auth/auth.service.js</td>
+        <td>Register / Login</td>
+        <td class="status-ok">✅ صح</td>
+        <td>Exception handling يشتغل صح</td>
+      </tr>
+      <tr>
+        <td class="path">src/modules/auth/auth.controller.js</td>
+        <td>Auth Routes</td>
+        <td class="status-ok">✅ صح</td>
+        <td>POST /register, POST /login</td>
+      </tr>
+      <tr>
+        <td class="path">src/modules/booking/booking.service.js</td>
+        <td>Booking CRUD logic</td>
+        <td class="status-ok">✅ صح</td>
+        <td>Exception handling يشتغل صح</td>
+      </tr>
+      <tr>
+        <td class="path">src/modules/booking/booking.controller.js</td>
+        <td>Booking Routes</td>
+        <td class="status-ok">✅ صح</td>
+        <td>GET/POST/PUT/DELETE محمية بـ auth</td>
+      </tr>
+      <tr>
+        <td class="path">src/utils/response.js</td>
+        <td>—</td>
+        <td class="status-warn">⚠️ فاضي</td>
+        <td>ملف فاضي وغير مستخدم</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ======= ROUTES TABLE ======= -->
+  <h2 class="section-title">الـ API Endpoints</h2>
+
+  <table class="arch-table">
+    <thead>
+      <tr>
+        <th>Method</th>
+        <th>المسار</th>
+        <th>Auth</th>
+        <th>الوظيفة</th>
+        <th>الحالة</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span style="color:#4ade80;font-family:monospace">POST</span></td>
+        <td class="path">/auth/register</td>
+        <td>—</td>
+        <td>تسجيل مستخدم جديد</td>
+        <td class="status-ok">✅ شغال</td>
+      </tr>
+      <tr>
+        <td><span style="color:#4ade80;font-family:monospace">POST</span></td>
+        <td class="path">/auth/login</td>
+        <td>—</td>
+        <td>تسجيل الدخول والحصول على token</td>
+        <td class="status-ok">✅ شغال</td>
+      </tr>
+      <tr>
+        <td><span style="color:#60a5fa;font-family:monospace">GET</span></td>
+        <td class="path">/api/bookings</td>
+        <td>🔒 JWT</td>
+        <td>جلب حجوزات المستخدم (مع search & sort)</td>
+        <td class="status-ok">✅ شغال</td>
+      </tr>
+      <tr>
+        <td><span style="color:#60a5fa;font-family:monospace">GET</span></td>
+        <td class="path">/api/bookings/:id</td>
+        <td>🔒 JWT</td>
+        <td>جلب حجز معين</td>
+        <td class="status-ok">✅ شغال</td>
+      </tr>
+      <tr>
+        <td><span style="color:#4ade80;font-family:monospace">POST</span></td>
+        <td class="path">/api/bookings</td>
+        <td>🔒 JWT</td>
+        <td>إنشاء حجز جديد</td>
+        <td class="status-ok">✅ شغال</td>
+      </tr>
+      <tr>
+        <td><span style="color:#fbbf24;font-family:monospace">PUT</span></td>
+        <td class="path">/api/bookings/:id</td>
+        <td>🔒 JWT</td>
+        <td>تعديل حجز</td>
+        <td class="status-ok">✅ شغال</td>
+      </tr>
+      <tr>
+        <td><span style="color:#f87171;font-family:monospace">DELETE</span></td>
+        <td class="path">/api/bookings/:id</td>
+        <td>🔒 JWT</td>
+        <td>إلغاء حجز (cancel)</td>
+        <td class="status-ok">✅ شغال</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ======= FIXES ======= -->
+  <h2 class="section-title">التصحيحات المقترحة</h2>
+
+  <!-- Fix 1 -->
+  <div class="correction-block">
+    <h3>تصحيح 1 — Booking Model timestamps</h3>
+    <p>في <code style="color:#7dd3fc">src/database/models/Booking.model.js</code> السطر 24:</p>
+    <div class="diff-label">الكود الحالي (غلط):</div>
+    <div class="code-block diff-bad">
+<span class="bad">{ timestamps: true, updatedAt: false }</span>
+    </div>
+    <div class="diff-label" style="margin-top:8px;">الكود الصح:</div>
+    <div class="code-block diff-good">
+<span class="good">{ timestamps: { createdAt: true, updatedAt: false } }</span>
+    </div>
+  </div>
+
+  <!-- Fix 2 -->
+  <div class="correction-block">
+    <h3>تصحيح 2 — JWT errors في auth middleware</h3>
+    <p>في <code style="color:#7dd3fc">src/middlewares/auth.middleware.js</code> الـ catch block:</p>
+    <div class="diff-label">الكود الحالي (غلط):</div>
+    <div class="code-block diff-bad">
+<span class="bad">} catch (err) {</span>
+<span class="bad">  next(err);  // jwt errors هترجع 500</span>
+<span class="bad">}</span>
+    </div>
+    <div class="diff-label" style="margin-top:8px;">الكود الصح:</div>
+    <div class="code-block diff-good">
+<span class="good">} catch (err) {</span>
+<span class="good">  if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {</span>
+<span class="good">    return next(new Error("Invalid or expired token", { cause: { status: 401 } }));</span>
+<span class="good">  }</span>
+<span class="good">  next(err);</span>
+<span class="good">}</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ======= FOOTER ======= -->
+<div class="footer">
+  <span>Route Backend Exam — Code Review Report</span>
+  <span>تم إنشاؤه بتاريخ 7 يونيو 2026</span>
+</div>
+
+</body>
+</html>
