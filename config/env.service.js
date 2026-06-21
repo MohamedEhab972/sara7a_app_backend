@@ -12,6 +12,9 @@ const ADMIN_REFRESH_SECRET = process.env.ADMIN_REFRESH_SECRET;
 const USER_REFRESH_SECRET = process.env.USER_REFRESH_SECRET;
 const MOOD = process.env.MOOD;
 const SALT = process.env.SALT;
+const SERVER_URI = process.env.SERVER_URI;
+const GOOGLE_EMAIL = process.env.GOOGLE_EMAIL;
+const GOOGLE_PASSWORD = process.env.GOOGLE_PASSWORD;
 
 export const env = {
   PORT,
@@ -24,4 +27,7 @@ export const env = {
   USER_REFRESH_SECRET,
   MOOD,
   SALT,
+  SERVER_URI,
+  GOOGLE_EMAIL,
+  GOOGLE_PASSWORD,
 };

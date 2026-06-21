@@ -12,10 +12,13 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "bcrypt": "^6.0.0",
+    "bcrypt": "^6.0.0", 
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "joi": "^18.2.2",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.6.2"
+    "mongoose": "^9.6.2",
+    "multer": "^2.2.0",
+    "nodemailer": "^9.0.1"
   }
 }

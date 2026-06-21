@@ -1,20 +1,19 @@
 import { Router } from "express";
-import {
-  getAccessToken,
-  getUserData,
-  loginUser,
-  Register,
-} from "./auth.service.js";
+import { getAccessToken, loginUser, Register } from "./auth.service.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import successResponce from "../../common/responce/success.responce.js";
-import { auth } from "../../common/middlewares/auth.middleware.js";
+import { validation } from "../../common/middlewares/validation.js";
+import { loginSchema, signSchema } from "./auth.validation.js";
+import { upload } from "../../common/middlewares/multer.js";
 
 const router = Router();
 
 router.post(
   "/register",
+  validation(signSchema),
+  upload().single("image"),
   asyncHandler(async (req, res) => {
-    const addedUser = await Register(req.body);
+    const addedUser = await Register(req.body, req.file);
     successResponce({
       res,
       message: "User created successfully",
@@ -26,18 +25,10 @@ router.post(
 
 router.get(
   "/login",
+  validation(loginSchema),
   asyncHandler(async (req, res) => {
     const result = await loginUser(req.body, req.get("host"));
     successResponce({ res, message: "Login successful", data: result });
-  }),
-);
-
-router.get(
-  "/get-user-data",
-  auth,
-  asyncHandler(async (req, res) => {
-    const user = await getUserData(req.user.id);
-    successResponce({ res, message: "success", data: user });
   }),
 );
 

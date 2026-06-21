@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: [8, "Password must be at least 8 characters"],
     },
+    phone: {
+      type: String,
+      unique: true,
+    },
     coverImage: {
       type: String,
     },
@@ -30,6 +34,13 @@ const userSchema = new mongoose.Schema(
     role: {
       type: Number,
       default: 0,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    otp: {
+      type: String,
     },
   },
   { timestamps: true },

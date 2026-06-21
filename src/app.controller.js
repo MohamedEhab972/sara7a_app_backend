@@ -1,17 +1,23 @@
 import express from "express";
 import { connectDB } from "./database/connection.js";
 import authRouter from "./modules/auth/auth.controller.js";
-import bookingRouter from "./modules/booking/booking.controller.js";
+import userRouter from "./modules/user/user.controller.js";
 import { globalErrorHandler } from "../src/common/responce/error.responce.js";
 import { env } from "../config/env.service.js";
 import successResponce from "./common/responce/success.responce.js";
+import { fileURLToPath } from "url";
+import path from "path";
 
 export const bootstrap = async () => {
   const app = express();
   app.use(express.json());
   connectDB();
+
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
   app.use("/auth", authRouter);
-  app.use("/api/bookings", bookingRouter);
+  app.use("/user", userRouter);
 
   app.use("/test", (req, res) => {
     successResponce({ res, message: "test", status: 200, data: null });
