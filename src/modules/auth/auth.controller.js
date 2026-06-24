@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { getAccessToken, loginUser, Register } from "./auth.service.js";
+import {
+  getAccessToken,
+  googleLogin,
+  loginUser,
+  Register,
+} from "./auth.service.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import successResponce from "../../common/responce/success.responce.js";
 import { validation } from "../../common/middlewares/validation.js";
@@ -39,7 +44,15 @@ router.get(
       req.headers.authorization,
       req.get("host"),
     );
-    successResponce({ res, message: "success", accessToken });
+    successResponce({ res, message: "success", data: { accessToken } });
+  }),
+);
+
+router.post(
+  "/google-login",
+  asyncHandler(async (req, res) => {
+    const result = await googleLogin(req.body, req.get("host"));
+    successResponce({ res, message: "Login successful", data: result });
   }),
 );
 

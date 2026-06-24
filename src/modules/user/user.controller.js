@@ -26,7 +26,7 @@ router.put(
       res,
       message: "User data updated successfully",
       data: updatedUser,
-    });
+    }); 
   }),
 );
 

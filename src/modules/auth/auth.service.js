@@ -14,6 +14,7 @@ import {
 } from "../../common/middlewares/security/encreption.js";
 import { env } from "../../../config/env.service.js";
 import { sendEmail } from "../../utils/sendEmail.js";
+import { OAuth2Client } from "google-auth-library";
 
 export const Register = async (data, image) => {
   const { name, password, email, uniqueAccName, phone } = data;
@@ -76,4 +77,37 @@ export const getAccessToken = async (token, host) => {
   const newAccessToken = await generateAccessToken(token, host);
 
   return newAccessToken;
+};
+
+export const googleLogin = async (data, host) => {
+  const { credential } = data;
+  if (!credential) {
+    BadRequestException({ message: "credential is required" });
+  }
+  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+  const ticket = await client.verifyIdToken({
+    idToken: credential,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+  const payload = ticket.getPayload();
+
+  let user = await userModel.findOne({ email: payload.email });
+
+  if (!user) {
+    const hashedPassword = await generateHash(payload.sub);
+    user = await userModel.create({
+      name: payload.name,
+      email: payload.email,
+      password: hashedPassword,
+      uniqueAccName: payload.email.split("@")[0] + "_" + payload.sub.slice(-6),
+      profilePicture: payload.picture,
+      isVerified: true,
+    });
+  } else if (!user.isVerified) {
+    user.isVerified = true;
+    await user.save();
+  }
+
+  const tokens = generateToken(user, host, user.role);
+  return { user, tokens };
 };

@@ -15,6 +15,7 @@ const SALT = process.env.SALT;
 const SERVER_URI = process.env.SERVER_URI;
 const GOOGLE_EMAIL = process.env.GOOGLE_EMAIL;
 const GOOGLE_PASSWORD = process.env.GOOGLE_PASSWORD;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
 export const env = {
   PORT,
@@ -30,4 +31,5 @@ export const env = {
   SERVER_URI,
   GOOGLE_EMAIL,
   GOOGLE_PASSWORD,
+  GOOGLE_CLIENT_ID,
 };
