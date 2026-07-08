@@ -26,11 +26,11 @@ router.put(
       res,
       message: "User data updated successfully",
       data: updatedUser,
-    }); 
+    });
   }),
 );
 
-router.get(
+router.patch(
   "/verify-account",
   asyncHandler(async (req, res) => {
     const user = await verifyAccount(req.body);

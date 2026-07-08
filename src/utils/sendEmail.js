@@ -12,12 +12,12 @@ const transporter = nodemailer.createTransport({
 export default transporter;
 
 /** @param {{ to: string, subject: string, text: string }} options */
-export const sendEmail = ({ to, subject, text }) => {
+export const sendEmail = ({ to, subject, html }) => {
   const mailOptions = {
     from: `From Mr.<${env.GOOGLE_EMAIL}>`,
     to,
     subject,
-    text,
+    html,
   };
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
@@ -26,6 +26,4 @@ export const sendEmail = ({ to, subject, text }) => {
       console.log("Email sent: " + info.response);
     }
   });
-
-  console.log("email sent");
 };

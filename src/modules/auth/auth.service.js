@@ -15,6 +15,7 @@ import {
 import { env } from "../../../config/env.service.js";
 import { sendEmail } from "../../utils/sendEmail.js";
 import { OAuth2Client } from "google-auth-library";
+import { createRevokeToken, setRedis } from "../../database/redis.service.js";
 
 export const Register = async (data, image) => {
   const { name, password, email, uniqueAccName, phone } = data;
@@ -33,7 +34,7 @@ export const Register = async (data, image) => {
     BadRequestException({ message: "User already exists" });
   }
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
+  const hashedOtp = await generateHash(otp);
   const hashedPassword = await generateHash(password);
   const user = await userModel.create({
     name,
@@ -42,13 +43,15 @@ export const Register = async (data, image) => {
     uniqueAccName,
     profilePicture: imagePath,
     phone,
-    otp,
   });
-
+  await setRedis(`otp:${user._id}`, hashedOtp, 60 * 5);
   sendEmail({
     to: user.email,
-    subject: "verify your email",
-    text: `<h1>verify your email , your otp is ${otp} </h1>`,
+    subject: "Verify your email",
+    html: `
+    <h1>Verify your email</h1>
+    <p>Your OTP is: <strong>${otp}</strong></p>
+  `,
   });
   return user;
 };
@@ -110,4 +113,10 @@ export const googleLogin = async (data, host) => {
 
   const tokens = generateToken(user, host, user.role);
   return { user, tokens };
+};
+
+export const logoutUser = async (req) => {
+  const revokedToken = await createRevokeToken(req.user.id, req.token);
+  await setRedis(revokedToken, 1, req.user.iat + 30 * 60);
+  return { message: "Logout successful" };
 };

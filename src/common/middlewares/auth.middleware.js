@@ -1,11 +1,11 @@
 import jwt from "jsonwebtoken";
 import { UnauthorizedException } from "../responce/error.responce.js";
 import { env } from "../../../config/env.service.js";
+import { createRevokeToken, existsRedis } from "../../database/redis.service.js";
 
-export const auth = (req, res, next) => {
+export const auth = async (req, res, next) => {
   try {
     const { authorization } = req.headers;
-
     if (!authorization) {
       return UnauthorizedException({ message: "Unauthorized" });
     }
@@ -35,7 +35,15 @@ export const auth = (req, res, next) => {
       return UnauthorizedException({ message: "Unauthorized" });
     }
 
+    const revoked = await existsRedis(
+      await createRevokeToken(verifiedToken.id, token),
+    );
+    if (revoked) {
+      return UnauthorizedException({ message: "Token has been revoked" });
+    }
+
     req.user = verifiedToken;
+    req.token = token;
     next();
   } catch (err) {
     next(err);

@@ -7,13 +7,15 @@ import { env } from "../config/env.service.js";
 import { fileURLToPath } from "url";
 import path from "path";
 import cors from "cors";
+import { connectRedis } from "./database/redis.js";
+import { setRedis } from "./database/redis.service.js";
 
 export const bootstrap = async () => {
   const app = express();
   app.use(cors({ origin: "*" }));
   app.use(express.json());
   connectDB();
-
+  connectRedis();
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   app.use("/uploads", express.static(path.join(__dirname, "../uploads")));

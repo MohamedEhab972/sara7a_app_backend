@@ -16,6 +16,7 @@ const SERVER_URI = process.env.SERVER_URI;
 const GOOGLE_EMAIL = process.env.GOOGLE_EMAIL;
 const GOOGLE_PASSWORD = process.env.GOOGLE_PASSWORD;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const REDIS_URL = process.env.REDIS_URL;
 
 export const env = {
   PORT,
@@ -32,4 +33,5 @@ export const env = {
   GOOGLE_EMAIL,
   GOOGLE_PASSWORD,
   GOOGLE_CLIENT_ID,
+  REDIS_URL,
 };

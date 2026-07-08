@@ -3,13 +3,16 @@ import {
   getAccessToken,
   googleLogin,
   loginUser,
+  logoutUser,
   Register,
 } from "./auth.service.js";
+import { verifyAccount } from "../user/user.service.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import successResponce from "../../common/responce/success.responce.js";
 import { validation } from "../../common/middlewares/validation.js";
 import { loginSchema, signSchema } from "./auth.validation.js";
 import { upload } from "../../common/middlewares/multer.js";
+import { auth } from "../../common/middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -28,7 +31,7 @@ router.post(
   }),
 );
 
-router.get(
+router.post(
   "/login",
   validation(loginSchema),
   asyncHandler(async (req, res) => {
@@ -53,6 +56,27 @@ router.post(
   asyncHandler(async (req, res) => {
     const result = await googleLogin(req.body, req.get("host"));
     successResponce({ res, message: "Login successful", data: result });
+  }),
+);
+
+router.patch(
+  "/verify-account",
+  asyncHandler(async (req, res) => {
+    const user = await verifyAccount(req.body);
+    successResponce({
+      res,
+      message: "Account verified successfully",
+      data: user,
+    });
+  }),
+);
+
+router.get(
+  "/logout",
+  auth,
+  asyncHandler(async (req, res) => {
+    const data = await logoutUser(req);
+    successResponce({ res, message: "Logout successful", data });
   }),
 );
 
