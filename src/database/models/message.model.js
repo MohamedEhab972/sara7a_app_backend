@@ -1,27 +1,25 @@
 import mongoose from "mongoose";
 
-const bookingSchema = new mongoose.Schema(
+const messageSchema = new mongoose.Schema(
   {
-    userId: {
+    Image: {
+      type: String,
+    },
+    sender: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    receiver: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    title: {
+    content: {
       type: String,
       required: true,
-    },
-    bookingDate: {
-      type: Date,
-      required: true,
-    },
-    status: {
-      type: String,
-      enum: ["pending", "confirmed", "canceled"],
-      default: "pending",
     },
   },
-  { timestamps: true, updatedAt: false },
+  { timestamps: true },
 );
 
-export const bookingModel = mongoose.model("Booking", bookingSchema);
+export const MessageModel = mongoose.model("Message", messageSchema);

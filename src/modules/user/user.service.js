@@ -80,3 +80,13 @@ export const verifyAccount = async (data) => {
   await deleteRedis(`otp:${user._id}`);
   return user;
 };
+
+export const getPublicProfile = async (uniqueAccName) => {
+  const user = await userModel
+    .findOne({ uniqueAccName })
+    .select("_id name uniqueAccName profilePicture");
+  if (!user) {
+    NotFoundException({ message: "User not found" });
+  }
+  return user;
+};

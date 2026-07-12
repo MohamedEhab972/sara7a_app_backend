@@ -2,7 +2,11 @@ import { Router } from "express";
 import { auth } from "../../common/middlewares/auth.middleware.js";
 import successResponce from "../../common/responce/success.responce.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
-import { getUserData, updateUserData, verifyAccount } from "./user.service.js";
+import {
+  getPublicProfile,
+  getUserData,
+  updateUserData,
+} from "./user.service.js";
 import { upload } from "../../common/middlewares/multer.js";
 
 const router = Router();
@@ -30,21 +34,12 @@ router.put(
   }),
 );
 
-router.patch(
-  "/verify-account",
+router.get(
+  "/public/:uniqueAccName",
   asyncHandler(async (req, res) => {
-    const user = await verifyAccount(req.body);
+    const user = await getPublicProfile(req.params.uniqueAccName);
     successResponce({ res, message: "success", data: user });
   }),
 );
-
-// router.delete(
-//   "/delete-user-data",
-//   auth,
-//   asyncHandler(async (req, res) => {
-//     const user = await getUserData(req.user.id);
-//     successResponce({ res, message: "success", data: user });
-//   }),
-// );
 
 export default router;

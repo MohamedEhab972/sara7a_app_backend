@@ -40,6 +40,11 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    provider: {
+      type: String,
+      enum: ["system", "google"],
+      default: "system",
+    },
   },
   { timestamps: true },
 );

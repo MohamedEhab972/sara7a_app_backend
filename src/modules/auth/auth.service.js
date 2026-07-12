@@ -105,6 +105,7 @@ export const googleLogin = async (data, host) => {
       uniqueAccName: payload.email.split("@")[0] + "_" + payload.sub.slice(-6),
       profilePicture: payload.picture,
       isVerified: true,
+      provider: "google",
     });
   } else if (!user.isVerified) {
     user.isVerified = true;
