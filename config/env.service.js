@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import path from "path";
 dotenv.config({ path: path.resolve("./config/.env") });
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
 const ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET;
 const USER_JWT_SECRET = process.env.USER_JWT_SECRET;

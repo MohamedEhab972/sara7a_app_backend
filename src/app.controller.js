@@ -14,8 +14,8 @@ export const bootstrap = async () => {
   const app = express();
   app.use(cors({ origin: "*" }));
   app.use(express.json());
-  connectDB();
-  connectRedis();
+  await connectDB();
+  await connectRedis();
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
