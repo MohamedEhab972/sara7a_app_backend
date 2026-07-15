@@ -19,7 +19,6 @@ export const generateToken = (payload, host, role) => {
 
   const accessToken = jwt.sign({ id: payload._id }, signature, {
     expiresIn: env.JWT_EXPIRES_IN,
-    notBefore: "10s",
     issuer: host,
     audience: `${role}`,
   });
@@ -50,7 +49,6 @@ export const generateAccessToken = async (refreshtoken, host) => {
 
   const accessToken = jwt.sign({ id: verifiedToken.id }, signature, {
     expiresIn: env.JWT_EXPIRES_IN,
-    notBefore: "10s",
     issuer: host,
     audience: `${verifiedToken.aud}`,
   });
