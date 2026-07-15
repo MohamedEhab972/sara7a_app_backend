@@ -12,15 +12,14 @@ import { connectRedis } from "./database/redis.js";
 
 export const bootstrap = async () => {
   const app = express();
-  app.use(
-    cors({
-      origin: "*",
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-      allowedHeaders: ["Content-Type", "Authorization"],
-      credentials: false,
-    }),
-  );
-  app.options("*", cors());
+ app.use(
+   cors({
+     origin: "*",
+     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+     allowedHeaders: ["Content-Type", "Authorization"],
+     credentials: false,
+   }),
+ );
   app.use(express.json());
   await connectDB();
   await connectRedis();
