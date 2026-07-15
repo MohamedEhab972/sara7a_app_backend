@@ -24,10 +24,6 @@ const verifyAuthToken = async (authorization) => {
 
   const verifiedToken = jwt.verify(token, signature);
 
-  if (verifiedToken.iss !== "localhost:3000") {
-    UnauthorizedException({ message: "Unauthorized" });
-  }
-
   const revoked = await existsRedis(
     await createRevokeToken(verifiedToken.id, token),
   );
