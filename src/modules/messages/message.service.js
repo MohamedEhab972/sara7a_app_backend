@@ -33,7 +33,7 @@ export const sendMessage = async (data, image, senderId) => {
 
 export const getMessages = async (userId) => {
   const messages = await MessageModel.find({ receiver: userId })
-    .select("-sender")
+    .select("-sender -reactions.user")
     .sort({ createdAt: -1 });
   return messages;
 };
@@ -43,6 +43,38 @@ export const deleteMessage = async (id, userId) => {
     _id: id,
     $or: [{ sender: userId }, { receiver: userId }],
   });
+  if (!message) {
+    BadRequestException({ message: "Message not found" });
+  }
+  return message;
+};
+
+export const reactToMessage = async (id, userId, emoji) => {
+  const message = await MessageModel.findOne({
+    _id: id,
+    $or: [{ sender: userId }, { receiver: userId }],
+  });
+  if (!message) {
+    BadRequestException({ message: "Message not found" });
+  }
+  const index = message.reactions.findIndex((r) => r.user.equals(userId));
+  if (index === -1) {
+    message.reactions.push({ user: userId, emoji });
+  } else if (message.reactions[index].emoji === emoji) {
+    message.reactions.splice(index, 1);
+  } else {
+    message.reactions[index].emoji = emoji;
+  }
+  await message.save();
+  return message;
+};
+
+export const replyToMessage = async (id, userId, content) => {
+  const message = await MessageModel.findOneAndUpdate(
+    { _id: id, receiver: userId },
+    { $set: { reply: { content, createdAt: new Date() } } },
+    { returnDocument: "after" },
+  );
   if (!message) {
     BadRequestException({ message: "Message not found" });
   }
