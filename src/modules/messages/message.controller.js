@@ -7,6 +7,7 @@ import { reactSchema, replySchema } from "./message.validation.js";
 import {
   deleteMessage,
   getMessages,
+  getSentMessages,
   reactToMessage,
   replyToMessage,
   sendMessage,
@@ -37,6 +38,19 @@ router.get(
     successResponce({
       res,
       message: "Messages retrieved successfully",
+      data: messages,
+    });
+  }),
+);
+
+router.get(
+  "/get-sent-messages",
+  auth,
+  asyncHandler(async (req, res) => {
+    const messages = await getSentMessages(req.user.id);
+    successResponce({
+      res,
+      message: "Sent messages retrieved successfully",
       data: messages,
     });
   }),

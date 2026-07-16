@@ -38,6 +38,13 @@ export const getMessages = async (userId) => {
   return messages;
 };
 
+export const getSentMessages = async (userId) => {
+  const messages = await MessageModel.find({ sender: userId }).sort({
+    createdAt: -1,
+  });
+  return messages;
+};
+
 export const deleteMessage = async (id, userId) => {
   const message = await MessageModel.findOneAndDelete({
     _id: id,
