@@ -29,7 +29,7 @@ export const bootstrap = async () => {
   });
 
   app.use(cors(corsOptions));
-  app.options("(.*)", cors(corsOptions));
+  app.options(/.*/, cors(corsOptions));
 
   const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -65,7 +65,7 @@ export const bootstrap = async () => {
     console.log(req.rateLimit);
     res.status(200).json({ status: true, message: "Server is running" });
   });
-  app.use("(.*)", (req, res) => {
+  app.use((req, res) => {
     res.status(404).json({ status: false, message: "Route not found" });
   });
   app.use(globalErrorHandler);
