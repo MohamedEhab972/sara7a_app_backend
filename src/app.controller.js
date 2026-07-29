@@ -29,7 +29,7 @@ export const bootstrap = async () => {
   });
 
   app.use(cors(corsOptions));
-  app.options("*", cors(corsOptions)); // handle preflight before rate limiter
+  app.options("(.*)", cors(corsOptions));
 
   const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -37,7 +37,7 @@ export const bootstrap = async () => {
     standardHeaders: "draft-8",
     legacyHeaders: false,
     ipv6Subnet: 56,
-    skip: (req) => req.method === "OPTIONS", // skip preflight from rate limit
+    skip: (req) => req.method === "OPTIONS",
     handler: (req, res, next, options) => {
       res.status(options.statusCode).json({
         status: false,
@@ -65,7 +65,7 @@ export const bootstrap = async () => {
     console.log(req.rateLimit);
     res.status(200).json({ status: true, message: "Server is running" });
   });
-  app.use("{*dummy}", (req, res) => {
+  app.use("(.*)", (req, res) => {
     res.status(404).json({ status: false, message: "Route not found" });
   });
   app.use(globalErrorHandler);
