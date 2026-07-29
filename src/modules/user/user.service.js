@@ -8,7 +8,7 @@ import {
   NotFoundException,
 } from "../../common/responce/error.responce.js";
 import { userModel } from "../../database/models/user.model.js";
-import { deleteRedis, getRedis } from "../../database/redis.service.js";
+import { verifyOtp } from "../../utils/otp.js";
 
 export const getUserData = async (id) => {
   const user = await userModel.findById(id);
@@ -67,17 +67,9 @@ export const verifyAccount = async (data) => {
   if (user.isVerified) {
     ConflictException({ message: "User already verified" });
   }
-  const savedOtp = await getRedis(`otp:${user._id}`);
-  if (!savedOtp) {
-    ConflictException({ message: "OTP expired" });
-  }
-  const isMatch = await compareData(otp, savedOtp);
-  if (!isMatch) {
-    ConflictException({ message: "Invalid OTP" });
-  }
+  await verifyOtp(user._id, otp);
   user.isVerified = true;
   await user.save();
-  await deleteRedis(`otp:${user._id}`);
   return user;
 };
 

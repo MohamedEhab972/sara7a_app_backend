@@ -13,9 +13,14 @@ import {
   compareData,
 } from "../../common/middlewares/security/encreption.js";
 import { env } from "../../../config/env.service.js";
-import { sendEmail } from "../../utils/sendEmail.js";
 import { OAuth2Client } from "google-auth-library";
 import { createRevokeToken, setRedis } from "../../database/redis.service.js";
+import {
+  createResetToken,
+  generateAndSendOtp,
+  verifyOtp,
+  verifyResetToken,
+} from "../../utils/otp.js";
 
 export const Register = async (data, image) => {
   const { name, password, email, uniqueAccName, phone } = data;
@@ -33,8 +38,6 @@ export const Register = async (data, image) => {
   if (existUser) {
     BadRequestException({ message: "User already exists" });
   }
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  const hashedOtp = await generateHash(otp);
   const hashedPassword = await generateHash(password);
   const user = await userModel.create({
     name,
@@ -44,15 +47,7 @@ export const Register = async (data, image) => {
     profilePicture: imagePath,
     phone,
   });
-  await setRedis(`otp:${user._id}`, hashedOtp, 60 * 5);
-  sendEmail({
-    to: user.email,
-    subject: "Verify your email",
-    html: `
-    <h1>Verify your email</h1>
-    <p>Your OTP is: <strong>${otp}</strong></p>
-  `,
-  });
+  await generateAndSendOtp(user._id, user.email);
   return user;
 };
 
@@ -120,4 +115,37 @@ export const logoutUser = async (req) => {
   const revokedToken = await createRevokeToken(req.user.id, req.token);
   await setRedis(revokedToken, 1, req.user.iat + 30 * 60);
   return { message: "Logout successful" };
+};
+
+export const forgotPassword = async (req) => {
+  const { email } = req.body;
+  const user = await userModel.findOne({ email });
+  if (!user) {
+    NotFoundException({ message: "User not found" });
+  }
+  await generateAndSendOtp(user._id, user.email);
+  return { message: "OTP sent to email" };
+};
+
+export const verifyResetOtp = async (data) => {
+  const { email, otp } = data;
+  const user = await userModel.findOne({ email });
+  if (!user) {
+    NotFoundException({ message: "User not found" });
+  }
+  await verifyOtp(user._id, otp);
+  const resetToken = await createResetToken(user._id);
+  return { resetToken };
+};
+
+export const resetPassword = async (data) => {
+  const { resetToken, newPassword } = data;
+  const userId = await verifyResetToken(resetToken);
+  const user = await userModel.findById(userId);
+  if (!user) {
+    NotFoundException({ message: "User not found" });
+  }
+  user.password = await generateHash(newPassword);
+  await user.save();
+  return { message: "Password updated successfully" };
 };

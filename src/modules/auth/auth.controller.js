@@ -1,16 +1,25 @@
 import { Router } from "express";
 import {
+  forgotPassword,
   getAccessToken,
   googleLogin,
   loginUser,
   logoutUser,
   Register,
+  resetPassword,
+  verifyResetOtp,
 } from "./auth.service.js";
 import { verifyAccount } from "../user/user.service.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import successResponce from "../../common/responce/success.responce.js";
 import { validation } from "../../common/middlewares/validation.js";
-import { loginSchema, signSchema } from "./auth.validation.js";
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  resetPasswordSchema,
+  signSchema,
+  verifyResetOtpSchema,
+} from "./auth.validation.js";
 import { upload } from "../../common/middlewares/multer.js";
 import { auth } from "../../common/middlewares/auth.middleware.js";
 
@@ -77,6 +86,33 @@ router.get(
   asyncHandler(async (req, res) => {
     const data = await logoutUser(req);
     successResponce({ res, message: "Logout successful", data });
+  }),
+);
+
+router.post(
+  "/forgot-password",
+  validation(forgotPasswordSchema),
+  asyncHandler(async (req, res) => {
+    const { message } = await forgotPassword(req);
+    successResponce({ res, message });
+  }),
+);
+
+router.post(
+  "/verify-reset-otp",
+  validation(verifyResetOtpSchema),
+  asyncHandler(async (req, res) => {
+    const data = await verifyResetOtp(req.body);
+    successResponce({ res, message: "OTP verified", data });
+  }),
+);
+
+router.post(
+  "/reset-password",
+  validation(resetPasswordSchema),
+  asyncHandler(async (req, res) => {
+    const { message } = await resetPassword(req.body);
+    successResponce({ res, message });
   }),
 );
 
