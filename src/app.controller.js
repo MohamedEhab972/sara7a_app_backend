@@ -22,6 +22,12 @@ export const bootstrap = async () => {
   const app = express();
   app.set("trust proxy", true);
 
+  app.use((req, res, next) => {
+    res.setHeader("Cross-Origin-Opener-Policy", "unsafe-none");
+    res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+    next();
+  });
+
   app.use(cors(corsOptions));
   app.options("*", cors(corsOptions)); // handle preflight before rate limiter
 
