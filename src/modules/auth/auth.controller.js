@@ -22,8 +22,23 @@ import {
 } from "./auth.validation.js";
 import { upload } from "../../common/middlewares/multer.js";
 import { auth } from "../../common/middlewares/auth.middleware.js";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 
 const router = Router();
+
+const loginLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 3,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  keyGenerator: (req) => `login-${ipKeyGenerator(req.ip, 56)}`,
+  handler: (req, res, next, options) => {
+    res.status(options.statusCode).json({
+      status: false,
+      message: "Too many login attempts, please try again after a minute.",
+    });
+  },
+});
 
 router.post(
   "/register",
@@ -42,6 +57,7 @@ router.post(
 
 router.post(
   "/login",
+  loginLimiter,
   validation(loginSchema),
   asyncHandler(async (req, res) => {
     const result = await loginUser(req.body, req.get("host"));
